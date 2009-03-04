@@ -1,0 +1,6 @@
+ALoA means "Apache Log Analytics". A command line tool, that can analyze your
+web traffic logs, and generates usefull informations. And it do it fast! ALoA
+is written in PHP-CLI, and does not depends on any other library.
+
+If you have any questions or bugreport, please feel free, to send it to
+"apachelogparser at gmail".
