@@ -128,6 +128,6 @@ while (!feof($fp)) {
 		}
 	}
 }
-file_put_contents('temp.ser', 'w', serialize($log));
+file_put_contents('temp.ser', serialize($log));
 echo PHP_EOL.str_repeat('-', 40).PHP_EOL;
 echo 'done.'.PHP_EOL;
