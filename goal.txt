@@ -1,0 +1,53 @@
+array(
+	2009 => array( // Year
+		1 => array( // Month
+			1 => array( // Day
+				0 => array( // Hour
+					'country' => array(
+						'US' => array( // By country
+							'visit'     => XXX,
+							'hit'       => XXX,
+							'bandwidth' => XXX
+						),
+						...
+					),
+					'browser' => array(
+						'Internet Explorer' => array( // By browser
+							'6.0' => XXX,
+							...
+						),
+						...
+					),
+					'spider' => array(
+						'GoogleBot' => array( // By spider/robot
+							'hit'       => XXX,
+							'bandwidth' => XXX,
+							'lastVisit' => YYYYMMDDHHII,
+						),
+						...
+					),
+					'os' => array(
+						'Windows' => XXX, // By OS
+						...
+					),
+					'page' => array(
+						'/' => array( // By path
+							'hit'   => XXX,
+							'start' => XXX,
+							'end'   => XXX
+						),
+						...
+					),
+					'status' => array(
+						404 => XXX, // By status code
+						...
+					)
+				),
+				...
+			),
+			...
+		),
+		...
+	),
+	...
+);

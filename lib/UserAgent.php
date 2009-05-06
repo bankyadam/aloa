@@ -28,6 +28,7 @@ class UserAgent
 		'sec-' => 'sonyericsson',
 		'sonyericsson' => 'sonyericsson',
 		'ericsson' => 'ericsson',
+		'r600' => 'ericsson',
 		'alcatel' => 'alcatel',
 		'lg-' => 'lg',
 		'mot-' => 'motorola',
@@ -48,7 +49,9 @@ class UserAgent
 		'ask jeeves' => 'askjeeves',
 		'scoutjet' => 'scoutjet',
 		'charlotte' => 'searchme',
-		'oozbot' => 'ozzbot',
+		'naverbot' => 'naverbot',
+		'voilavot' => 'voilabot',
+		'oozbot' => 'oozbot',
 		'akregator' => 'akregator',
 		'surveybot' => 'surveybot',
 		'similarpages' => 'similarpages',
@@ -104,17 +107,16 @@ class UserAgent
 		// Mobilephone vendors
 		'nokia' => 'Nokia',
 		'samsung' => 'Samsung',
-		'sec-' => 'SonyEricsson',
 		'sonyericsson' => 'SonyEricsson',
 		'ericsson' => 'Ericsson',
 		'alcatel' => 'Alcatel',
-		'lg-' => 'LG',
-		'mot-' => 'Motorola',
+		'lg' => 'LG',
+		'motorola' => 'Motorola',
 		'panasonic' => 'Panasonic',
 		'philips' => 'Philips',
 		'sagem' => 'Sagem',
-		'sie-' => 'Siemens',
-		'sharp-' => 'Sharp',
+		'siemens' => 'Siemens',
+		'sharp' => 'Sharp',
 		// Other mobilephones
 		'midp-1.0' => 'MIDP-1.0 compatible mobilephone',
 		'midp-2.0' => 'MIDP-2.0 compatible mobilephone',
@@ -126,9 +128,11 @@ class UserAgent
 		'twiceler' => 'Cuil Twiceler',
 		'askjeeves' => 'Ask Jeeves',
 		'scoutjet' => 'ScoutJet',
+		'naverbot' => 'NaverBot (naver.com)',
 		'searchme' => 'Searchme.com',
 		'oozbot' => 'Setozz',
 		'akregator' => 'akregator',
+		'voilabot' => 'VoilaBot',
 		'surveybot' => 'Domain Tools.com SurveyBot',
 		'similarpages' => 'SimilarPages.com',
 		'baiduspider' => 'Baidu.com BaiduSpider',
@@ -144,6 +148,7 @@ class UserAgent
 		'gigabot' => 'Gigablast.com',
 		'netseer' => 'NetSeer.com',
 		'grub' => 'Grubby',
+		'robot' => 'Other robot, sider or crawler',
 		// Downloaders
 		'wget' => 'Wget',
 		'leechget' => 'LeechGet',
@@ -159,6 +164,57 @@ class UserAgent
 		'libwww' => 'libwww',
 		// Unknown
 		'' => 'Unknown'
+	);
+
+	private static $version = array(
+		'java'        => '#Java/(\d+\.\d+)#',
+		'chrome'      => '#Chrome/(\d+\.\d+)#',
+		'shiira'      => '#Shiira/(\d+\.\d+)#',
+		'flock'       => '#Flock/(\d+\.\d+)#',
+		'firefox'     => '#Firefox/(\d+\.\d+)#',
+		'galeon'      => '#Galeon/(\d+\.\d+)#',
+		'seamonkey'   => '#SeaMonkey/(\d+\.\d+)#',
+		'camino'      => '#Camino/(\d+\.\d+)#',
+		'k-meleon'    => '#K-Meleon(?:/|\s)(\d+\.\d+)#',
+		'konqueror'   => '#Konqueror/(\d+\.\d+)#',
+		'opera'       => '#Opera(?:/|\s)(\d+\.\d+)#',
+		'omniweb'     => '#OmniWeb/(v\d+|\d\.\d)#',
+		'msie'        => '#MSIE (\d+\.\d+)#',
+		'applewebkit' => '#AppleWebKit/(\d+\.\d+)#',
+		'transmit'    => '#Transmit(\d+\.\d+)#',
+		'mozilla'     => '#rv:\s*(\d+\.\d+)#',
+		'netscape'    => '#(?:Navigator|Netscape)(?:/|\s)(\d+\.\d+)#'
+	);
+
+	private static $safariVersionMatrix = array(
+		85     => '1.0',
+		100    => '1.1',
+		125    => '1.2',
+		312    => '1.3',
+		412    => '2.0',
+		522    => '3.0',
+		525    => '3.1',
+		525.26 => '3.2',
+		528    => '4.0'
+	);
+
+	private static $omniwebVersionMatrix = array(
+		'622'  => '5.8',
+		'613'  => '5.6',
+		'607'  => '5.5',
+		'563'  => '5.1',
+		'558'  => '5.0',
+		'496'  => '4.5'
+	);
+
+	/**
+	 * @var array   List of bots.
+	 */
+	private static $bot = array(
+		'msnbot', 'yahooslurp', 'googlebot', 'twiceler', 'askjeeves', 'scoutjet', 'naverbot', 'searchme', 'oozbot',
+		'akregator', 'voilabot', 'surveybot', 'similarpages', 'baiduspider', 'ia_archiver', 'psbot', 'speedy spider',
+		'feedfetcher-google', 'robotgenius', 'yacybot', 'blogbot', 'sapphirewebcrawler', 'yanga', 'gigabot', 'netseer',
+		'grub', 'robot'
 	);
 
 	/**
@@ -247,47 +303,6 @@ class UserAgent
 		'wii'                      => 'wii'
 	);
 
-	private static $version = array(
-		'java'        => '#Java/(\d+\.\d+)#',
-		'chrome'      => '#Chrome/(\d+\.\d+)#',
-		'shiira'      => '#Shiira/(\d+\.\d+)#',
-		'flock'       => '#Flock/(\d+\.\d+)#',
-		'firefox'     => '#Firefox/(\d+\.\d+)#',
-		'galeon'      => '#Galeon/(\d+\.\d+)#',
-		'seamonkey'   => '#SeaMonkey/(\d+\.\d+)#',
-		'camino'      => '#Camino/(\d+\.\d+)#',
-		'k-meleon'    => '#K-Meleon(?:/|\s)(\d+\.\d+)#',
-		'konqueror'   => '#Konqueror/(\d+\.\d+)#',
-		'opera'       => '#Opera(?:/|\s)(\d+\.\d+)#',
-		'omniweb'     => '#OmniWeb/(v\d+|\d\.\d)#',
-		'msie'        => '#MSIE (\d+\.\d+)#',
-		'applewebkit' => '#AppleWebKit/(\d+\.\d+)#',
-		'transmit'    => '#Transmit(\d+\.\d+)#',
-		'mozilla'     => '#rv:\s*(\d+\.\d+)#',
-		'netscape'    => '#(?:Navigator|Netscape)(?:/|\s)(\d+\.\d+)#'
-	);
-
-	private static $safariVersionMatrix = array(
-		85     => '1.0',
-		100    => '1.1',
-		125    => '1.2',
-		312    => '1.3',
-		412    => '2.0',
-		522    => '3.0',
-		525    => '3.1',
-		525.26 => '3.2',
-		528    => '4.0'
-	);
-
-	private static $omniwebVersionMatrix = array(
-		'622'  => '5.8',
-		'613'  => '5.6',
-		'607'  => '5.5',
-		'563'  => '5.1',
-		'558'  => '5.0',
-		'496'  => '4.5'
-	);
-
 	public static function parse($userAgentString)
 	{
 		do {
@@ -350,7 +365,8 @@ class UserAgent
 			'browserid' => $browser,
 			'browser'   => self::$browserNames[$browser],
 			'version'   => $version,
-			'os'        => $os
+			'os'        => $os,
+			'bot'       => in_array($browser, self::$bot)
 		);
 	}
 }
