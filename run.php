@@ -7,6 +7,13 @@
 // Loading configuration
 $config = include 'config.php';
 
+$logFilePath = isset($argv[1]) ? $argv[1] : 'small.log';
+
+if (!is_readable($logFilePath)) {
+	echo 'ERROR: Log file is not readable or not found at '.$logFilePath.PHP_EOL;
+	exit;
+}
+
 /**
  * @ignore
  */
@@ -17,7 +24,7 @@ date_default_timezone_set('Europe/Budapest');
 
 chdir(dirname(__FILE__));
 
-$fp = fopen('25.log', 'r');
+$fp = fopen($logFilePath, 'r');
 
 echo 'Starting...'.PHP_EOL;
 
@@ -42,6 +49,11 @@ while (!feof($fp)) {
 		$ua = UserAgent::parse($logData['reqHeader___useragent']);
 	}
 
+	$request = trim($logData['request']);
+	$path = substr($request, ($a =  strpos($request, ' ') + 1), strpos($request, ' ', $a) - $a);
+	$path = explode('?', $path);
+	$path = $path[0];
+
 	$time = strtotime($logData['time']);
 	$year = date('Y', $time);
 	$month = date('n', $time);
@@ -49,17 +61,6 @@ while (!feof($fp)) {
 	$hour = date('G', $time);
 
 	$fileSize = $logData['lengthCLF'];
-
-	$userId = md5($userId);
-	if (empty($userData[$userId])) {
-		$country = @geoip_country_code_by_name($logData['host']);
-		$userData[$userId] = array(
-			'lastVisit' => 0,
-			'country'   => $country ? $country : ''
-		);
-	}
-	$isNewVisit = $userData[$userId]['lastVisit'] + 1800 < time();
-	$userData[$userId]['lastVisit'] = time();
 
 	if (!isset($log[$year][$month][$day][$hour])) {
 		$log[$year][$month][$day][$hour] = array(
@@ -77,11 +78,49 @@ while (!feof($fp)) {
 	if ($logData['status'][0] == '2') {
 		// Browser
 		if (!$ua['bot']) {
+			$userId = md5($userId);
+			if (empty($userData[$userId])) {
+				$country = @geoip_country_code_by_name($logData['host']);
+				$userData[$userId] = array(
+					'lastVisit' => 0,
+					'country'   => $country ? $country : '',
+					'lastPage'  => null,
+					'pageCount' => 0
+				);
+			}
+			// Ha uj latogatasrol van szo, akkor nullazzuk a pageCount-ot.
+			if ($isNewVisit = $userData[$userId]['lastVisit'] + 1800 < time()) {
+				// Ha volt mar korabban megnezett oldala es uj latogatas, akkor az elozo session utolso oldalanak
+				// a kilepo szamat noveljuk
+				if (!empty($userData[$userId]['lastPage'])) {
+					$logItem['page'][$userData[$userId]['lastPage']]['stop']++;
+				}
+				$userData[$userId]['pageCount'] = 0;
+			}
+			$userData[$userId]['lastVisit'] = time();
+			$userData[$userId]['lastPage'] = $path;
+			$userData[$userId]['pageCount']++;
+
 			if (!isset($logItem['browser'][$ua['browserid']][$ua['version']])) {
 				$logItem['browser'][$ua['browserid']][$ua['version']] = 1;
 			}
 			else {
 				$logItem['browser'][$ua['browserid']][$ua['version']]++;
+			}
+
+			// Page
+			if (!isset($logItem['page'][$path])) {
+				$logItem['page'][$path] = array(
+					'hit'   => 0,
+					'start' => 0,
+					'end'   => 0
+				);
+			}
+			$logItem['page'][$path]['hit']++;
+
+			// Ha a legelso oldalmegnezese a felhasznalonak, akkor noveljuk az oldal 'nyito' szamat.
+			if ($userData[$userId]['pageCount'] == 1) {
+				$logItem['page'][$path]['start']++;
 			}
 
 			// Country
@@ -128,6 +167,14 @@ while (!feof($fp)) {
 		}
 	}
 }
+
+// Feldolgozzuk azokat a cimeket, amik bent maradtak
+foreach ($userData as $user) {
+	if (!empty($user['lastPage'])) {
+		$logItem['page'][$user['lastPage']]['end']++;
+	}
+}
 file_put_contents('temp.ser', serialize($log));
 echo PHP_EOL.str_repeat('-', 40).PHP_EOL;
 echo 'done.'.PHP_EOL;
+print_r($log);
